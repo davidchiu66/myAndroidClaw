@@ -1,0 +1,87 @@
+import java.util.Properties
+
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    id 'kotlin-kapt'
+}
+
+def localProps = new Properties()
+def f = rootProject.file("local.properties")
+if (f.exists()) {
+    f.withInputStream { localProps.load(it) }
+}
+
+android {
+    namespace 'com.andforce.andclaw'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId "com.andforce.andclaw"
+        minSdk 31
+        targetSdk 36
+        versionCode 1
+        versionName "1.0"
+
+        multiDexEnabled true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField "String", "KIMI_KEY", "\"${localProps.getProperty("kimi_key", "")}\""
+        buildConfigField "String", "TG_TOKEN", "\"${localProps.getProperty("tg_token", "")}\""
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+    buildFeatures {
+        viewBinding true
+        dataBinding true
+        buildConfig true
+    }
+}
+
+configurations.configureEach {
+    exclude group: 'com.android.support'
+}
+
+dependencies {
+    implementation project(':model')
+    implementation project(':mdm')
+    implementation project(':services')
+    implementation project(':commonUtils')
+
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.lifecycle.runtime.ktx
+    implementation libs.androidx.appcompat
+    implementation libs.material
+    implementation libs.okhttp
+    implementation libs.okhttp.logging
+    implementation libs.google.code.gson
+
+    // CameraX
+    implementation libs.camerax.core
+    implementation libs.camerax.camera2
+    implementation libs.camerax.lifecycle
+    implementation libs.camerax.view
+    implementation libs.camerax.video
+    implementation "com.google.guava:guava:30.1-jre"
+
+    // Koin
+    implementation "io.insert-koin:koin-core:3.3.3"
+    implementation 'io.insert-koin:koin-android:3.3.3'
+
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.espresso.core
+}
