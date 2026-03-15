@@ -7,13 +7,13 @@ on:
       - master
       - dev
   pull_request:
-  workflow_dispatch
+  workflow_dispatch:
   release:
     types: [created]
 
 jobs:
 
-  build:
+  build: 
 
     runs-on: ubuntu-latest
 
