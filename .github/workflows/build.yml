@@ -7,7 +7,7 @@ on:
       - master
       - dev
   pull_request:
-  workflow_dispatch:
+  workflow_dispatch
   release:
     types: [created]
 
@@ -49,6 +49,12 @@ jobs:
       - name: Grant gradlew permission
         run: chmod +x gradlew
 
+      # ⭐ 生成 local.properties（写入 secrets）
+      - name: Generate local.properties
+        run: |
+          echo "kimi_key=${{ secrets.KIMI_API_TOKEN }}" >> local.properties
+          echo "tg_token=${{ secrets.TG_TOKEN }}" >> local.properties
+
       - name: Gradle cache
         uses: actions/cache@v4
         with:
@@ -86,22 +92,7 @@ jobs:
           name: release-aab
           path: app/build/outputs/bundle/release/*.aab
 
-  release:
-
-    if: github.event_name == 'release'
-
-    runs-on: ubuntu-latest
-
-    needs: build
-
-    steps:
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-
-      - name: Upload APK to GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            **/*.apk
-            **/*.aab
+      # ⭐ 删除 secrets 文件
+      - name: Remove local.properties
+        if: always()
+        run: rm -f local.properties
